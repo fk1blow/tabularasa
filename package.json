@@ -17,6 +17,7 @@
     "onStartupFinished",
     "onFileSystem:git"
   ],
+  "publisher": "fk1blow",
   "contributes": {
     "commands": [
       {
