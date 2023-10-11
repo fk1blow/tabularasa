@@ -1,27 +1,44 @@
 import {
+  EventEmitter,
   ExtensionContext,
-  Memento,
   TabChangeEvent,
   TabGroup,
   window,
 } from 'vscode'
+import { TabGroupLike, TabLike } from './types'
 
 export class WorkspaceTabsMananger {
+  private _onDidChangeTabGroups: EventEmitter<TabGroupLike[]>
+
   constructor(private ctx: ExtensionContext) {
-    // console.log('ctx.workspaceState: ', ctx.workspaceState.keys())
-    // window.tabGroups.onDidChangeTabs((evt: TabChangeEvent) => {
-    //   console.log('---tabs changed')
-    //   const tabGroups = window.tabGroups.all
-    // })
-    // this.persistTabGroups(window.tabGroups.all.slice())
+    this._onDidChangeTabGroups = new EventEmitter<TabGroupLike[]>()
+
+    window.tabGroups.onDidChangeTabs((evt: TabChangeEvent) => {
+      this._onDidChangeTabGroups.fire(
+        this.transformTabGroups(window.tabGroups.all.slice())
+      )
+    })
   }
 
-  // private modify() {
-  //   const tabGroups = window.tabGroups.all
-  //   console.log('tabGroups: ', tabGroups)
-  // }
+  get onDidChangeTabGroups() {
+    return this._onDidChangeTabGroups.event
+  }
 
-  private persistTabGroups(groups: TabGroup[]) {
-    // this.storage.update('tabularasa:master', { tabGroups: groups })
+  getEditorTabGroups(): TabGroupLike[] {
+    return this.transformTabGroups(window.tabGroups.all.slice())
+  }
+
+  private transformTabGroups(tabGroups: TabGroup[]): TabGroupLike[] {
+    return tabGroups.map((tabGroup, groupIndex) => {
+      return {
+        activeTabIndex: 0,
+        isActive: tabGroup.isActive,
+        tabs: tabGroup.tabs.slice().map(({ group, ...rest }) => ({
+          groupIndex,
+          ...rest,
+        })) as TabLike[],
+        viewColumn: tabGroup.viewColumn,
+      }
+    })
   }
 }

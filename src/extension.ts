@@ -1,10 +1,12 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode'
-import { API, APIState, GitExtension } from './git'
-import { GitBaseExtension } from './git-base'
+import stringify from 'json-stringify-safe'
+
+import { API, APIState, GitExtension } from './lib/vscode-git/git'
+import { GitBaseExtension } from './lib/vscode-git/git-base'
 import { WorkspaceTabsMananger } from './WorkspaceTabsManager'
-import { BranchManager } from './branch-manager/BranchManager'
+import { BranchManager } from './BranchManager'
 import { ManagedWorkspaceState } from './ManagedWorkspaceState'
 
 // This method is called when your extension is activated
@@ -57,8 +59,47 @@ export function activate(context: vscode.ExtensionContext) {
   const tabManager = new WorkspaceTabsMananger(context)
   const managedState = new ManagedWorkspaceState(context)
   const reposBranchManager = new BranchManager(managedState)
-  reposBranchManager.onDidChangeCurrent((e) => {
-    console.log('e: ', e)
+
+  // managedState.reset()
+
+  reposBranchManager.onDidChangeBranchHead((branchName) => {
+    const currentXo = managedState.getCurrent()
+    // return
+
+    // if theres no current, we need to initialize it
+    if (!currentXo) {
+      managedState.changeCurrent({
+        branchName,
+        tabGroups: tabManager.getEditorTabGroups(),
+      })
+      return
+    }
+
+    // If theres a `current` but it's not the `branchName`
+    if (branchName !== currentXo.branchName) {
+      // if the new branch is already in history,
+      // change the notification
+      const history = managedState.getHistory()
+      if (history[branchName]) {
+        managedState.changeNotification(history[branchName])
+      }
+
+      managedState.changeCurrent({
+        branchName,
+        tabGroups: tabManager.getEditorTabGroups(),
+      })
+    }
+  })
+
+  tabManager.onDidChangeTabGroups((tabGroups) => {
+    const currentXo = managedState.getCurrent()
+    if (currentXo?.branchName) {
+      managedState.updateHistory({
+        branchName: currentXo.branchName,
+        tabGroups: tabManager.getEditorTabGroups(),
+      })
+    }
+    managedState.updateCurrentTabs(tabGroups)
   })
 
   // context.workspaceState.update('repositories', {
@@ -71,18 +112,18 @@ export function activate(context: vscode.ExtensionContext) {
   //   console.log('event: ', event)
   // })
 
-  // vscode.window.tabGroups.onDidChangeTabs((evt: vscode.TabChangeEvent) => {
-  //   // vscode.workspace.textDocuments.forEach((doc) => {
-  //   //   console.log('doc.uri: ', doc.uri.path)
-  //   // })
+  vscode.window.tabGroups.onDidChangeTabs((evt: vscode.TabChangeEvent) => {
+    // vscode.workspace.textDocuments.forEach((doc) => {
+    //   console.log('doc.uri: ', doc.uri.path)
+    // })
 
-  //   // console.log('evt.opened: ', evt.opened)
-  //   // console.log('evt.closed: ', evt.closed)
-  //   evt.closed.forEach((tab: vscode.Tab) => {
-  //     console.log(tab.input instanceof vscode.TabInputText)
-  //     // console.log('tab: ', tab.label, tab.input['uri'].path)
-  //   })
-  // })
+    // console.log('evt.opened: ', evt.opened)
+    // console.log('evt.closed: ', evt.closed)
+    evt.closed.forEach((tab: vscode.Tab) => {
+      console.log(tab.input instanceof vscode.TabInputText)
+      // console.log('tab: ', tab.label, tab.input['uri'].path)
+    })
+  })
 
   // ---------------------------------------------------------------------------
 
