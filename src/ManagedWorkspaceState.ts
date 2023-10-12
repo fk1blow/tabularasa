@@ -1,8 +1,8 @@
 import { ExtensionContext } from 'vscode'
 import {
-  ManagedWorkspaceCurrent,
+  ManagedWorkspaceHead,
   ManagedWorkspaceHistory,
-  BranchAssociatedTabGroups,
+  BranchHeadTabGroupsMapping,
   TabGroupLike,
   ManagedWorkspaceNotification,
 } from './types'
@@ -15,7 +15,7 @@ enum StateKeys {
 
 export class ManagedWorkspaceState {
   constructor(private ctx: ExtensionContext) {
-    const current = this.getCurrent()
+    const current = this.getHead()
     if (!current) {
       console.info('"current" key is not initialized!')
     }
@@ -27,22 +27,22 @@ export class ManagedWorkspaceState {
   }
 
   // TODO `current` should be renamed b/c reasons
-  getCurrent(): ManagedWorkspaceCurrent | undefined {
+  getHead(): ManagedWorkspaceHead | undefined {
     return this.ctx.workspaceState.get(StateKeys.current)
   }
 
   // TODO `current` should be renamed b/c reasons
-  changeCurrent(value: BranchAssociatedTabGroups) {
+  changeHead(value: ManagedWorkspaceHead) {
     this.ctx.workspaceState.update(StateKeys.current, value)
   }
 
   // TODO `current` should be renamed b/c reasons
-  updateCurrentTabs(tabGroups: TabGroupLike[]) {
-    const current = this.getCurrent()
+  updateHead(tabGroups: TabGroupLike[]) {
+    const current = this.getHead()
     if (!current) {
       return
     }
-    const update: BranchAssociatedTabGroups = {
+    const update: ManagedWorkspaceHead = {
       branchName: current.branchName,
       tabGroups,
     }
@@ -53,7 +53,7 @@ export class ManagedWorkspaceState {
     return this.ctx.workspaceState.get(StateKeys.history) || {}
   }
 
-  updateHistory(value: BranchAssociatedTabGroups) {
+  updateHistory(value: BranchHeadTabGroupsMapping) {
     const history = { ...this.getHistory() }
     history[value.branchName] = value.tabGroups
     this.ctx.workspaceState.update(StateKeys.history, history)

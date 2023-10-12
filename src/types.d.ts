@@ -10,20 +10,18 @@ export interface TabGroupLike
   tabs: TabLike[]
 }
 
-export interface BranchAssociatedTabGroups {
-  branchName: string
+export type BranchName = string
+
+export interface BranchHeadTabGroupsMapping {
+  branchName: BranchName
   tabGroups: TabGroupLike[]
 }
 
-// TODO should this by renamed to `head`?
-export type ManagedWorkspaceCurrent = BranchAssociatedTabGroups | null
+export type ManagedWorkspaceHead = {
+  branchName: BranchName
+  tabGroups: TabGroupLike[]
+}
 
-export type ManagedWorkspaceHistory = Record<string, TabGroupLike[]>
+export type ManagedWorkspaceHistory = Record<BranchName, TabGroupLike[]>
 
 export type ManagedWorkspaceNotification = TabGroupLike[]
-
-export interface ManagedWorkspace {
-  current: ManagedWorkspaceCurrent
-  history: ManagedWorkspaceHistory
-  notification: ManagedWorkspaceNotification
-}

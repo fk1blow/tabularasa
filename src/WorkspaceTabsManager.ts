@@ -1,23 +1,22 @@
-import {
-  EventEmitter,
-  ExtensionContext,
-  TabChangeEvent,
-  TabGroup,
-  window,
-} from 'vscode'
+import { Disposable, EventEmitter, TabChangeEvent, TabGroup, window } from 'vscode'
 import { TabGroupLike, TabLike } from './types'
 
 export class WorkspaceTabsMananger {
   private _onDidChangeTabGroups: EventEmitter<TabGroupLike[]>
+  private _onDidChangeTabGroupsDisposable: Disposable
 
-  constructor(private ctx: ExtensionContext) {
+  constructor() {
     this._onDidChangeTabGroups = new EventEmitter<TabGroupLike[]>()
 
-    window.tabGroups.onDidChangeTabs((evt: TabChangeEvent) => {
+    this._onDidChangeTabGroupsDisposable = window.tabGroups.onDidChangeTabs((evt: TabChangeEvent) => {
       this._onDidChangeTabGroups.fire(
         this.transformTabGroups(window.tabGroups.all.slice())
       )
     })
+  }
+
+  cleanup() {
+    this._onDidChangeTabGroupsDisposable.dispose()
   }
 
   get onDidChangeTabGroups() {
