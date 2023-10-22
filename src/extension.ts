@@ -5,6 +5,7 @@ import * as vscode from 'vscode'
 import { WorkspaceTabsMananger } from './WorkspaceTabsManager'
 import { BranchManager } from './BranchManager'
 import { ManagedWorkspaceState } from './ManagedWorkspaceState'
+import { TabsHistoryDataProvider } from './workbench/historylist/TabsHistoryDataProvider'
 
 let tabManager: WorkspaceTabsMananger | undefined
 let managedState: ManagedWorkspaceState | undefined
@@ -17,21 +18,24 @@ export function activate(context: vscode.ExtensionContext) {
   managedState = new ManagedWorkspaceState(context)
   reposBranchManager = new BranchManager()
 
-  // managedState.reset()
+  // return managedState.reset()
 
   reposBranchManager.onDidChangeBranchHead((branchName) => {
-    if (!tabManager || !managedState || !reposBranchManager) {
+    // console.log('------------ onDidChangeBranchHead, branchName: ', branchName)
+    if (!tabManager || !managedState) {
       return
     }
 
-    const headTabGroupsMapping = managedState.getHead()
+    // TODO should check if the branchName is already in current
+
+    const headTabGroupsMapping = managedState.getActiveWorkspace()
     // return
 
     // if theres no current, we need to initialize it
     if (!headTabGroupsMapping) {
-      managedState.changeHead({
+      managedState.changeActiveWorkspace({
         branchName,
-        tabGroups: tabManager.getEditorTabGroups(),
+        tabGroups: tabManager.getEditorTabGroupsLike(),
       })
       return
     }
@@ -40,44 +44,56 @@ export function activate(context: vscode.ExtensionContext) {
     if (branchName !== headTabGroupsMapping.branchName) {
       // if the new branch is already in history,
       // change the notification
-      const history = managedState.getHistory()
+      const history = managedState.getHistoryWorkspaces()
       if (history[branchName]) {
         managedState.changeNotification(history[branchName])
       }
 
-      managedState.changeHead({
+      managedState.changeActiveWorkspace({
         branchName,
-        tabGroups: tabManager.getEditorTabGroups(),
+        tabGroups: tabManager.getEditorTabGroupsLike(),
       })
     }
   })
 
   tabManager.onDidChangeTabGroups((tabGroups) => {
-    if (!tabManager || !managedState || !reposBranchManager) {
+    if (!tabManager || !managedState) {
       return
     }
 
-    const headTabGroupsMapping = managedState.getHead()
+    const headTabGroupsMapping = managedState.getActiveWorkspace()
 
     if (headTabGroupsMapping?.branchName) {
-      managedState.updateHistory({
+      managedState.updateHistoryWorkspaces({
         branchName: headTabGroupsMapping.branchName,
-        tabGroups: tabManager.getEditorTabGroups(),
+        tabGroups: tabManager.getEditorTabGroupsLike(),
       })
     }
 
-    managedState.updateHead(tabGroups)
+    managedState.updateActiveWorkspace(tabGroups)
   })
 
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
+  console.clear()
   console.log('-----------------------------------------------------------')
   console.log('Congratulations, your extension "tabularasa" is now active!')
+
+  // const xoxo = async () => {
+  //   const response = await vscode.window.showInformationMessage(
+  //     'Hello World from tabularasa!',
+  //     'ok',
+  //     'cancel'
+  //   )
+  // }
+
+  // xoxo()
+vscode.window.registerTreeDataProvider('historyList', new TabsHistoryDataProvider(managedState));
 
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
   // The commandId parameter must match the command field in package.json
-  let disposable = vscode.commands.registerCommand(
+  const disposable = vscode.commands.registerCommand(
     'tabularasa.helloWorld',
     async () => {
       // The code you place here will be executed every time your command is executed

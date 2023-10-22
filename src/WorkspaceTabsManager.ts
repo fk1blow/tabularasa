@@ -1,4 +1,10 @@
-import { Disposable, EventEmitter, TabChangeEvent, TabGroup, window } from 'vscode'
+import {
+  Disposable,
+  EventEmitter,
+  TabChangeEvent,
+  TabGroup,
+  window,
+} from 'vscode'
 import { TabGroupLike, TabLike } from './types'
 
 export class WorkspaceTabsMananger {
@@ -8,11 +14,13 @@ export class WorkspaceTabsMananger {
   constructor() {
     this._onDidChangeTabGroups = new EventEmitter<TabGroupLike[]>()
 
-    this._onDidChangeTabGroupsDisposable = window.tabGroups.onDidChangeTabs((evt: TabChangeEvent) => {
-      this._onDidChangeTabGroups.fire(
-        this.transformTabGroups(window.tabGroups.all.slice())
-      )
-    })
+    this._onDidChangeTabGroupsDisposable = window.tabGroups.onDidChangeTabs(
+      (_evt: TabChangeEvent) => {
+        this._onDidChangeTabGroups.fire(
+          this.transformTabGroups(window.tabGroups.all.slice())
+        )
+      }
+    )
   }
 
   cleanup() {
@@ -23,7 +31,7 @@ export class WorkspaceTabsMananger {
     return this._onDidChangeTabGroups.event
   }
 
-  getEditorTabGroups(): TabGroupLike[] {
+  getEditorTabGroupsLike(): TabGroupLike[] {
     return this.transformTabGroups(window.tabGroups.all.slice())
   }
 

@@ -17,29 +17,33 @@ export class BranchManager {
     this._onDidChangeBranchHead = new EventEmitter<string>()
 
     const gitExtension: GitExtension =
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       extensions.getExtension<GitExtension>('vscode.git')!.exports
 
     this.gitApi = gitExtension.getAPI(1)
 
-    this._onDidChangeStateDisposable = this.gitApi.onDidChangeState((evt: APIState) => {
-      if (evt !== 'initialized') {
-        return
-      }
+    this._onDidChangeStateDisposable = this.gitApi.onDidChangeState(
+      (evt: APIState) => {
+        if (evt !== 'initialized') {
+          return
+        }
 
-      // don't care if theres more than 1 repo, or none at all
-      if (this.gitApi.repositories.length !== 1) {
-        return
-      }
+        // don't care if theres more than 1 repo, or none at all
+        if (this.gitApi.repositories.length !== 1) {
+          return
+        }
 
-      this.gitApi.repositories.forEach((repo: Repository) => {
-        const disposable = repo.state.onDidChange((e) => {
-          if (!repo.state.HEAD?.name) {
-            return
-          }
-          this._onDidChangeBranchHead.fire(repo.state.HEAD.name)
+        this.gitApi.repositories.forEach((repo: Repository) => {
+          // const _disposable = repo.state.onDidChange((e) => {
+          repo.state.onDidChange((e) => {
+            if (!repo.state.HEAD?.name) {
+              return
+            }
+            this._onDidChangeBranchHead.fire(repo.state.HEAD.name)
+          })
         })
-      })
-    })
+      }
+    )
   }
 
   cleanup() {

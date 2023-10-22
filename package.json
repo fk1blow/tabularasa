@@ -19,6 +19,14 @@
   ],
   "publisher": "fk1blow",
   "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "historyList",
+          "name": "History List"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "tabularasa.helloWorld",

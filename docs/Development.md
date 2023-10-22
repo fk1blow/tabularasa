@@ -9,6 +9,7 @@ Need to work with the `workspaceState` and keep track of repositories and opened
 
 ```
 {
+  // TODO rename it to `active`
   current: { branch_name: [tab_group_1, tab_group_2] },
 
   history: [
