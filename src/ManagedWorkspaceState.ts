@@ -81,16 +81,23 @@ export class ManagedWorkspaceState {
   // or just split into `updateHistoryForBranchName` or `addHistoryForBranchName`
   updateHistoryWorkspaces(value: BranchNameTabGroupsMapping) {
     const tabGroupsAreEmpty = value.tabGroups.every((g) => g.tabs.length === 0)
-    const history = { ...this.getHistoryWorkspaces() }
+    const history = this.getHistoryWorkspaces()
 
+    // don't save empty tab groups - delete them instead
     if (tabGroupsAreEmpty) {
       delete history[value.branchName]
-      this.ctx.workspaceState.update(WorkspaceStateKeys.HistoryWorkspaces, history)
+      this.ctx.workspaceState.update(
+        WorkspaceStateKeys.HistoryWorkspaces,
+        history
+      )
       return
     }
 
     history[value.branchName] = value.tabGroups.filter((g) => g.tabs.length > 0)
-    this.ctx.workspaceState.update(WorkspaceStateKeys.HistoryWorkspaces, history)
+    this.ctx.workspaceState.update(
+      WorkspaceStateKeys.HistoryWorkspaces,
+      history
+    )
   }
 
   reset() {

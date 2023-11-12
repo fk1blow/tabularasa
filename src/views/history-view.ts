@@ -6,8 +6,12 @@ import {
   Uri,
   window,
 } from 'vscode'
-import { ManagedWorkspaceState, TabGroupLike, TabLike } from '../ManagedWorkspaceState'
-import { pluralizeNone } from '../utils/string'
+import {
+  ManagedWorkspaceState,
+  TabGroupLike,
+  TabLike,
+} from '../ManagedWorkspaceState'
+import { pluralize, thize } from '../utils/string'
 
 enum TypeKeyForItems {
   Root = 'root',
@@ -33,7 +37,6 @@ export class TabsHistoryDataProvider
   constructor(private workspaceState: ManagedWorkspaceState) {}
 
   getTreeItem(element: HistoryEntryItem): TreeItem {
-    // console.log('element: ', element)
     return element
   }
 
@@ -51,12 +54,11 @@ export class TabsHistoryDataProvider
       return Promise.resolve(
         Object.keys(workspaceHistory).map((branchName) => {
           const tabGroups: TabGroupLike[] = workspaceHistory[branchName]
-          // TODO use a pluralization library
-          // const tabGroupsCount = tabGroups.length
-          // const description = `${tabGroups.length} tab group/s`
-          console.log('tabGroups.length: ', tabGroups.length)
-          const descriptionPluralized = pluralizeNone(tabGroups.length, 'tab group', 'tab groups', 'Empty tab groups')
-          const description = `${tabGroups.length} ${descriptionPluralized}`
+          const description = `${pluralize(
+            tabGroups,
+            'tab group',
+            'tab groups'
+          )}`
           return new HistoryEntryItem(
             { label: branchName },
             description,
@@ -74,15 +76,17 @@ export class TabsHistoryDataProvider
     if (element.itemWithPathKey?.key === TypeKeyForItems.Root) {
       return Promise.resolve(
         element.itemWithPathKey.tabGroups.map((tabGroup, idx) => {
+          const tabsDescriptionCount = `${pluralize(
+            tabGroup.tabs,
+            'tab',
+            'tabs'
+          )}`
+          const groupDescriptionIsActive = tabGroup.isActive ? ' • active' : ''
+          const description = `${tabsDescriptionCount}${groupDescriptionIsActive}`
+
           return new HistoryEntryItem(
-            { label: `${idx}` },
-            `${
-              tabGroup.tabs.length < 1
-                ? 'Empty group'
-                : tabGroup.isActive
-                ? 'Focused'
-                : ''
-            }`,
+            { label: `${thize(idx + 1)} group` },
+            description,
             undefined,
             TreeItemCollapsibleState.Collapsed,
             {
@@ -97,7 +101,6 @@ export class TabsHistoryDataProvider
     if (element.itemWithPathKey?.key === TypeKeyForItems.TabGroups) {
       return Promise.resolve(
         element.itemWithPathKey.tabs.map((tab, _idx) => {
-
           return new HistoryEntryItem(
             { label: `${tab.label}` },
             `${tab.isActive ? 'Focused' : ''}`,
