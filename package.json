@@ -22,8 +22,22 @@
     "views": {
       "explorer": [
         {
-          "id": "historyList",
-          "name": "TabulaRasa History"
+          "id": "tabularasa.views.layoutHistory",
+          "name": "Workspace History"
+        }
+      ]
+    },
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "tabularasa.restoreWorkspaceForBranch",
+          "group": "inline",
+          "when": "view == tabularasa.views.layoutHistory && viewItem == tabularasa.views.layoutHistory:branch"
+        },
+        {
+          "command": "tabularasa.restoreWorkspaceForTabGroup",
+          "group": "inline",
+          "when": "view == tabularasa.views.layoutHistory && viewItem == tabularasa.views.layoutHistory:tabGroup"
         }
       ]
     },
@@ -31,6 +45,16 @@
       {
         "command": "tabularasa.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "tabularasa.restoreWorkspaceForBranch",
+        "title": "Restore tab groups layout",
+        "icon": "$(layout)"
+      },
+      {
+        "command": "tabularasa.restoreWorkspaceForTabGroup",
+        "title": "Restore tabs in tab group layout",
+        "icon": "$(editor-layout)"
       }
     ]
   },

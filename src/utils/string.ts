@@ -10,7 +10,7 @@ export function pluralize(
   return count === 1 ? `${count} ${singular}` : `${count} ${plural}`
 }
 
-export function thize(num: number) {
+export function nthize(num: number) {
   const j = num % 10
   const k = num % 100
   if (j === 1 && k !== 11) {

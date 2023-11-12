@@ -6,6 +6,7 @@ import { WorkspaceTabsMananger } from './WorkspaceTabsManager'
 import { BranchManager } from './BranchManager'
 import { ManagedWorkspaceState } from './ManagedWorkspaceState'
 import { TabsHistoryDataProvider } from './views/history-view'
+import { treeViewId } from './constants'
 
 let tabManager: WorkspaceTabsMananger | undefined
 let managedState: ManagedWorkspaceState | undefined
@@ -78,7 +79,10 @@ export function activate(context: vscode.ExtensionContext) {
   // }
 
   // xoxo()
-vscode.window.registerTreeDataProvider('historyList', new TabsHistoryDataProvider(managedState));
+  vscode.window.registerTreeDataProvider(
+    treeViewId,
+    new TabsHistoryDataProvider(managedState)
+  )
 
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with registerCommand
@@ -103,6 +107,6 @@ vscode.window.registerTreeDataProvider('historyList', new TabsHistoryDataProvide
 
 // This method is called when your extension is deactivated
 export function deactivate() {
-  reposBranchManager?.cleanup()
-  tabManager?.cleanup()
+  reposBranchManager?.dispose()
+  tabManager?.dispose()
 }

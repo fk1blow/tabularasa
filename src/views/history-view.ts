@@ -2,34 +2,12 @@ import {
   TreeDataProvider,
   TreeItem,
   TreeItemCollapsibleState,
-  TreeItemLabel,
-  Uri,
   window,
 } from 'vscode'
-import {
-  ManagedWorkspaceState,
-  TabGroupLike,
-  TabLike,
-} from '../ManagedWorkspaceState'
-import { pluralize, thize } from '../utils/string'
-
-enum TypeKeyForItems {
-  Root = 'root',
-  TabGroups = 'tabGroups',
-  Tabs = 'tabs',
-}
-
-type ItemWithPathKeyForRoot = {
-  key: TypeKeyForItems.Root
-  [TypeKeyForItems.TabGroups]: TabGroupLike[]
-}
-
-type ItemWithPathKeyForTabGroups = {
-  key: TypeKeyForItems.TabGroups
-  [TypeKeyForItems.Tabs]: TabLike[]
-}
-
-type ItemWithPathKey = ItemWithPathKeyForRoot | ItemWithPathKeyForTabGroups
+import { ManagedWorkspaceState, TabGroupLike } from '../ManagedWorkspaceState'
+import { pluralize, nthize } from '../utils/string'
+import { HistoryEntryItem } from './entry-item'
+import { TypeKeyForItems } from './types'
 
 export class TabsHistoryDataProvider
   implements TreeDataProvider<HistoryEntryItem>
@@ -85,7 +63,7 @@ export class TabsHistoryDataProvider
           const description = `${tabsDescriptionCount}${groupDescriptionIsActive}`
 
           return new HistoryEntryItem(
-            { label: `${thize(idx + 1)} group` },
+            { label: `${nthize(idx + 1)} group` },
             description,
             undefined,
             TreeItemCollapsibleState.Collapsed,
@@ -103,27 +81,17 @@ export class TabsHistoryDataProvider
         element.itemWithPathKey.tabs.map((tab, _idx) => {
           return new HistoryEntryItem(
             { label: `${tab.label}` },
-            `${tab.isActive ? 'Focused' : ''}`,
+            `${tab.isActive ? 'focused' : ''}`,
             tab.resourceUri,
-            TreeItemCollapsibleState.None
+            TreeItemCollapsibleState.None,
+            {
+              key: TypeKeyForItems.Tabs,
+            }
           )
         })
       )
     }
 
     return Promise.resolve([])
-  }
-}
-
-export class HistoryEntryItem extends TreeItem {
-  constructor(
-    public readonly label: TreeItemLabel,
-    public readonly description: string,
-    public readonly resourceUri: Uri | undefined,
-    public readonly collapsibleState: TreeItemCollapsibleState,
-    public readonly itemWithPathKey?: ItemWithPathKey
-  ) {
-    super(label, collapsibleState)
-    this.resourceUri = resourceUri
   }
 }
