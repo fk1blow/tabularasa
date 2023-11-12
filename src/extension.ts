@@ -5,7 +5,7 @@ import * as vscode from 'vscode'
 import { WorkspaceTabsMananger } from './WorkspaceTabsManager'
 import { BranchManager } from './BranchManager'
 import { ManagedWorkspaceState } from './ManagedWorkspaceState'
-import { TabsHistoryDataProvider } from './workbench/historylist/TabsHistoryDataProvider'
+import { TabsHistoryDataProvider } from './views/history-view'
 
 let tabManager: WorkspaceTabsMananger | undefined
 let managedState: ManagedWorkspaceState | undefined
@@ -26,10 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
       return
     }
 
-    // TODO should check if the branchName is already in current
-
     const headTabGroupsMapping = managedState.getActiveWorkspace()
-    // return
 
     // if theres no current, we need to initialize it
     if (!headTabGroupsMapping) {

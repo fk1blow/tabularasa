@@ -6,7 +6,7 @@ import {
   TabInputText,
   window,
 } from 'vscode'
-import { TabGroupLike, TabLike } from './types'
+import { TabGroupLike, TabLike } from './ManagedWorkspaceState'
 
 export class WorkspaceTabsMananger {
   private _onDidChangeTabGroups: EventEmitter<TabGroupLike[]>

@@ -1,16 +1,37 @@
-import { ExtensionContext } from 'vscode'
-import {
-  ManagedWorkspaceHead,
-  ManagedWorkspaceHistory,
-  BranchNameTabGroupsMapping,
-  TabGroupLike,
-} from './types'
+import { ExtensionContext, Tab, TabGroup, Uri } from 'vscode'
 
 enum WorkspaceStateKeys {
   ActiveWorkspace = 'active',
   HistoryWorkspaces = 'history',
   Notification = 'notification',
 }
+
+// It's a copy of vscode.Tab, but without the `group` property
+export interface TabLike extends Exclude<Tab, 'group'> {
+  // groupIndex: number
+  resourceUri: Uri
+}
+
+// it's a copy of vscode.TabGroup, but without the `isActive` and the `viwColumn` properties
+export interface TabGroupLike
+  extends Pick<TabGroup, 'isActive' | 'viewColumn'> {
+  activeTabIndex: number
+  tabs: TabLike[]
+}
+
+export interface BranchNameTabGroupsMapping {
+  branchName: BranchName
+  tabGroups: TabGroupLike[]
+}
+
+export type ManagedWorkspaceHead = {
+  branchName: BranchName
+  tabGroups: TabGroupLike[]
+}
+
+export type BranchName = string
+
+export type ManagedWorkspaceHistory = Record<BranchName, TabGroupLike[]>
 
 // This is an interface to vscode.workspaceState, to manage the state of the extension
 // and to access different parts of the state, like the current branch, the history, etc.
@@ -59,8 +80,16 @@ export class ManagedWorkspaceState {
   // TODO maybe `updateBranchNameHistory` is a better name
   // or just split into `updateHistoryForBranchName` or `addHistoryForBranchName`
   updateHistoryWorkspaces(value: BranchNameTabGroupsMapping) {
+    const tabGroupsAreEmpty = value.tabGroups.every((g) => g.tabs.length === 0)
     const history = { ...this.getHistoryWorkspaces() }
-    history[value.branchName] = value.tabGroups
+
+    if (tabGroupsAreEmpty) {
+      delete history[value.branchName]
+      this.ctx.workspaceState.update(WorkspaceStateKeys.HistoryWorkspaces, history)
+      return
+    }
+
+    history[value.branchName] = value.tabGroups.filter((g) => g.tabs.length > 0)
     this.ctx.workspaceState.update(WorkspaceStateKeys.HistoryWorkspaces, history)
   }
 

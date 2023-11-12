@@ -1,6 +1,4 @@
 import {
-  TabInputText,
-  ThemeIcon,
   TreeDataProvider,
   TreeItem,
   TreeItemCollapsibleState,
@@ -8,9 +6,26 @@ import {
   Uri,
   window,
 } from 'vscode'
-import { ManagedWorkspaceState } from '../../ManagedWorkspaceState'
-import { TypeKeyForItems, ItemWithPathKey } from './types'
-import { TabGroupLike } from '../../types'
+import { ManagedWorkspaceState, TabGroupLike, TabLike } from '../ManagedWorkspaceState'
+import { pluralize, pluralizeNone } from '../utils/string'
+
+export enum TypeKeyForItems {
+  Root = 'root',
+  TabGroups = 'tabGroups',
+  Tabs = 'tabs',
+}
+
+export type ItemWithPatKeyForRoot = {
+  key: TypeKeyForItems.Root
+  [TypeKeyForItems.TabGroups]: TabGroupLike[]
+}
+
+export type ItemWithPatKeyForTabGroups = {
+  key: TypeKeyForItems.TabGroups
+  [TypeKeyForItems.Tabs]: TabLike[]
+}
+
+export type ItemWithPathKey = ItemWithPatKeyForRoot | ItemWithPatKeyForTabGroups
 
 export class TabsHistoryDataProvider
   implements TreeDataProvider<HistoryEntryItem>
@@ -37,7 +52,11 @@ export class TabsHistoryDataProvider
         Object.keys(workspaceHistory).map((branchName) => {
           const tabGroups: TabGroupLike[] = workspaceHistory[branchName]
           // TODO use a pluralization library
-          const description = `${tabGroups.length} tab group/s`
+          // const tabGroupsCount = tabGroups.length
+          // const description = `${tabGroups.length} tab group/s`
+          console.log('tabGroups.length: ', tabGroups.length)
+          const descriptionPluralized = pluralizeNone(tabGroups.length, 'tab group', 'tab groups', 'Empty tab groups')
+          const description = `${tabGroups.length} ${descriptionPluralized}`
           return new HistoryEntryItem(
             { label: branchName },
             description,

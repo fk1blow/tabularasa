@@ -4,7 +4,7 @@ import {
   API as GitApi,
   APIState,
   Repository,
-} from './lib/vscode-git/git'
+} from './@types/vscode-git/git'
 
 export class BranchManager {
   private _onDidChangeBranchHead: EventEmitter<string>
