@@ -6,7 +6,7 @@ import {
   Repository,
 } from './@types/vscode-git/git'
 
-export class BranchManager {
+export class BranchManager implements Disposable {
   private _onDidChangeBranchHead: EventEmitter<string>
 
   private _onDidChangeStateDisposable: Disposable
@@ -46,7 +46,7 @@ export class BranchManager {
     )
   }
 
-  cleanup() {
+  dispose() {
     this._onDidChangeStateDisposable.dispose()
   }
 

@@ -8,7 +8,7 @@ import {
 } from 'vscode'
 import { TabGroupLike, TabLike } from './ManagedWorkspaceState'
 
-export class WorkspaceTabsMananger {
+export class WorkspaceTabsMananger implements Disposable {
   private _onDidChangeTabGroups: EventEmitter<TabGroupLike[]>
   private _onDidChangeTabGroupsDisposable: Disposable
 
@@ -24,7 +24,7 @@ export class WorkspaceTabsMananger {
     )
   }
 
-  cleanup() {
+  dispose() {
     this._onDidChangeTabGroupsDisposable.dispose()
   }
 
