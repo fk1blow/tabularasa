@@ -42,13 +42,6 @@ export function activate(context: vscode.ExtensionContext) {
 
     // If theres a `current` but it's not the `branchName`
     if (branchName !== headTabGroupsMapping.branchName) {
-      // if the new branch is already in history,
-      // change the notification
-      const history = managedState.getHistoryWorkspaces()
-      if (history[branchName]) {
-        managedState.changeNotification(history[branchName])
-      }
-
       managedState.changeActiveWorkspace({
         branchName,
         tabGroups: tabManager.getEditorTabGroupsLike(),

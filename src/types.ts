@@ -1,8 +1,9 @@
-import { Tab, TabGroup } from 'vscode'
+import { Tab, TabGroup, Uri } from 'vscode'
 
 // It's a copy of vscode.Tab, but without the `group` property
 export interface TabLike extends Exclude<Tab, 'group'> {
-  groupIndex: number
+  // groupIndex: number
+  resourceUri: Uri
 }
 
 // it's a copy of vscode.TabGroup, but without the `isActive` and the `viwColumn` properties
@@ -25,5 +26,3 @@ export type ManagedWorkspaceHead = {
 }
 
 export type ManagedWorkspaceHistory = Record<BranchName, TabGroupLike[]>
-
-export type ManagedWorkspaceNotification = TabGroupLike[]

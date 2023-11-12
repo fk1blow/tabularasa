@@ -4,7 +4,6 @@ import {
   ManagedWorkspaceHistory,
   BranchNameTabGroupsMapping,
   TabGroupLike,
-  ManagedWorkspaceNotification,
 } from './types'
 
 enum WorkspaceStateKeys {
@@ -63,17 +62,6 @@ export class ManagedWorkspaceState {
     const history = { ...this.getHistoryWorkspaces() }
     history[value.branchName] = value.tabGroups
     this.ctx.workspaceState.update(WorkspaceStateKeys.HistoryWorkspaces, history)
-  }
-
-  changeNotification(notification: ManagedWorkspaceNotification) {
-    this.ctx.workspaceState.update(
-      WorkspaceStateKeys.Notification,
-      notification
-    )
-  }
-
-  getNotification(): ManagedWorkspaceNotification | undefined {
-    return this.ctx.workspaceState.get(WorkspaceStateKeys.Notification)
   }
 
   reset() {

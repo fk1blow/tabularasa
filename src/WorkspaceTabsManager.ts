@@ -3,6 +3,7 @@ import {
   EventEmitter,
   TabChangeEvent,
   TabGroup,
+  TabInputText,
   window,
 } from 'vscode'
 import { TabGroupLike, TabLike } from './types'
@@ -36,16 +37,33 @@ export class WorkspaceTabsMananger {
   }
 
   private transformTabGroups(tabGroups: TabGroup[]): TabGroupLike[] {
-    return tabGroups.map((tabGroup, groupIndex) => {
+    return tabGroups.map((tabGroup) => {
       return {
         activeTabIndex: 0,
         isActive: tabGroup.isActive,
-        tabs: tabGroup.tabs.slice().map(({ group, ...rest }) => ({
-          groupIndex,
-          ...rest,
-        })) as TabLike[],
+        tabs: this.transformTabGroupTabs(tabGroup),
         viewColumn: tabGroup.viewColumn,
       }
     })
+  }
+
+  private transformTabGroupTabs(tabGroup: TabGroup): TabLike[] {
+    return (
+      tabGroup.tabs
+        .slice()
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        .map(({ group, input, ...rest }) => {
+          if (input instanceof TabInputText) {
+            return {
+              ...rest,
+              resourceUri: input.uri,
+            }
+          }
+          return {
+            ...rest,
+            input,
+          }
+        }) as TabLike[]
+    )
   }
 }

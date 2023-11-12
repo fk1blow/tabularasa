@@ -15,3 +15,5 @@ export type ItemWithPatKeyForTabGroups = {
   key: TypeKeyForItems.TabGroups
   [TypeKeyForItems.Tabs]: TabLike[]
 }
+
+export type ItemWithPathKey = ItemWithPatKeyForRoot | ItemWithPatKeyForTabGroups
