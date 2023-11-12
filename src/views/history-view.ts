@@ -7,25 +7,25 @@ import {
   window,
 } from 'vscode'
 import { ManagedWorkspaceState, TabGroupLike, TabLike } from '../ManagedWorkspaceState'
-import { pluralize, pluralizeNone } from '../utils/string'
+import { pluralizeNone } from '../utils/string'
 
-export enum TypeKeyForItems {
+enum TypeKeyForItems {
   Root = 'root',
   TabGroups = 'tabGroups',
   Tabs = 'tabs',
 }
 
-export type ItemWithPatKeyForRoot = {
+type ItemWithPathKeyForRoot = {
   key: TypeKeyForItems.Root
   [TypeKeyForItems.TabGroups]: TabGroupLike[]
 }
 
-export type ItemWithPatKeyForTabGroups = {
+type ItemWithPathKeyForTabGroups = {
   key: TypeKeyForItems.TabGroups
   [TypeKeyForItems.Tabs]: TabLike[]
 }
 
-export type ItemWithPathKey = ItemWithPatKeyForRoot | ItemWithPatKeyForTabGroups
+type ItemWithPathKey = ItemWithPathKeyForRoot | ItemWithPathKeyForTabGroups
 
 export class TabsHistoryDataProvider
   implements TreeDataProvider<HistoryEntryItem>
